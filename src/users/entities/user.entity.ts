@@ -22,6 +22,9 @@ export class User {
   updateAt: Date;
 
   @OneToOne(() => Customer, (customer) => customer.user, { nullable: true })
-  @JoinColumn()
+  @JoinColumn({
+    name: "pk_customer",
+    referencedColumnName: "id"
+  })
   customer: Customer
 }
