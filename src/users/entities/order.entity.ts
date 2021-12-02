@@ -1,26 +1,28 @@
 import { User } from './user.entity';
 import { Product } from './../../products/entities/product.entity';
-import { PrimaryGeneratedColumn, Column, Entity, UpdateDateColumn, CreateDateColumn } from 'typeorm'
+import { PrimaryGeneratedColumn, Column, Entity, UpdateDateColumn, CreateDateColumn, ManyToOne, OneToMany } from 'typeorm'
+import { Customer } from './customer.entity';
+import { OrderItem } from './order-item.entity';
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({ type: 'date' })
-  date: Date;
-  @Column({ type: 'varchar', length: 255 })
-  user: User;
+
   @CreateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
+
   @UpdateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   updateAt: Date;
 
-  @Column({ type: 'varchar', length: 255 })
-  products: Product[];
+  @ManyToOne(() => Customer, (customer) => customer.orders)
+  customer: Customer;
 
+  @OneToMany(() => OrderItem, (item) => item.order)
+  items: OrderItem[];
 }
