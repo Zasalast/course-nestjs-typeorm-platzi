@@ -1,28 +1,67 @@
-import { User } from './user.entity';
-import { Product } from './../../products/entities/product.entity';
-import { PrimaryGeneratedColumn, Column, Entity, UpdateDateColumn, CreateDateColumn, ManyToOne, OneToMany } from 'typeorm'
+import {
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+    CreateDateColumn,
+    ManyToOne,
+    Entity,
+    OneToMany,
+    JoinColumn,
+} from 'typeorm';
 import { Customer } from './customer.entity';
 import { OrderItem } from './order-item.entity';
+
+import { Exclude, Expose } from 'class-transformer';
+
 @Entity()
 export class Order {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @CreateDateColumn({
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createAt: Date;
+    @CreateDateColumn({
+        name: 'create_at',
+        type: 'timestamptz',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    createAt: Date;
 
-  @UpdateDateColumn({
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  updateAt: Date;
+    @UpdateDateColumn({
+        name: 'update_at',
+        type: 'timestamptz',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    updateAt: Date;
+    @JoinColumn({ name: 'customer_id' })
+    @ManyToOne(() => Customer, (customer) => customer.orders)
+    customer: Customer;
 
-  @ManyToOne(() => Customer, (customer) => customer.orders)
-  customer: Customer;
+    @Exclude()
+    @OneToMany(() => OrderItem, (item) => item.order)
+    items: OrderItem[];
 
-  @OneToMany(() => OrderItem, (item) => item.order)
-  items: OrderItem[];
+    @Expose()
+    get products() {
+        if (this.items) {
+            return this.items
+                .filter((item) => !!item)
+                .map((item) => ({
+                    ...item.product,
+                    quantity: item.quantity,
+                    itemId: item.id,
+                }));
+        }
+        return [];
+    }
+
+    @Expose()
+    get total() {
+        if (this.items) {
+            return this.items
+                .filter((item) => !!item)
+                .reduce((total, item) => {
+                    const totalItem = item.product.price * item.quantity;
+                    return total + totalItem;
+                }, 0);
+        }
+        return 0;
+    }
 }

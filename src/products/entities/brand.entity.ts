@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 import { Product } from './product.entity';
 @Entity()
@@ -8,13 +9,16 @@ export class Brand {
   name: string;
   @Column({ type: 'varchar', length: 255 })
   image: string;
-
+  @Exclude()
   @CreateDateColumn({
+    name: 'create_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
+  @Exclude()
   @UpdateDateColumn({
+    name: 'update_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })

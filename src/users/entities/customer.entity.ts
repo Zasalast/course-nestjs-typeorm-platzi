@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { PrimaryGeneratedColumn, Column, Entity, UpdateDateColumn, CreateDateColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm'
 import { Order } from './order.entity';
 import { User } from './user.entity';
@@ -7,16 +8,23 @@ export class Customer {
   id: number;
   @Column({ type: 'varchar', length: 255 })
   name: string;
-  @Column({ type: 'varchar', length: 255 })
+  @Column({
+    name: 'last_name',
+    type: 'varchar', length: 255
+  })
   lastName: string;
   @Column({ type: 'varchar', length: 255 })
   phone: string;
+  @Exclude()
   @CreateDateColumn({
+    name: 'create_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
+  @Exclude()
   @UpdateDateColumn({
+    name: 'update_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })

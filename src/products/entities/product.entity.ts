@@ -1,8 +1,10 @@
-import { PrimaryGeneratedColumn, Column, Entity, CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn, ManyToOne, ManyToMany, JoinTable } from 'typeorm'
+import { Exclude } from 'class-transformer';
+import { PrimaryGeneratedColumn, Column, Entity, CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn, ManyToOne, ManyToMany, JoinTable, Index } from 'typeorm'
 import { Brand } from './brand.entity'
 import { Category } from './category.entity';
 
-@Entity()
+@Entity({ name: 'products' })
+@Index(['price', 'stock'])
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
@@ -10,24 +12,30 @@ export class Product {
   name: string;
   @Column({ type: 'text' })
   description: string;
+  @Index()
   @Column({ type: 'int' })
   price: number;
   @Column({ type: 'int' })
   stock: number;
   @Column({ type: 'varchar' })
   image: string;
+  @Exclude()
   @CreateDateColumn({
+    name: 'create_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
+  @Exclude()
   @UpdateDateColumn({
+    name: 'update_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   updateAt: Date;
 
   @ManyToOne(() => Brand, (brand) => brand.products, { nullable: true })
+  @JoinColumn({ name: 'brand_id' })
   brand: Brand
 
   @ManyToMany(() => Category, (categories) => categories.products, { nullable: true })
@@ -35,11 +43,11 @@ export class Product {
   @JoinTable({
     name: "product_categories",
     joinColumn: {
-      name: "pk_product",
+      name: "product_id",
       referencedColumnName: "id"
     },
     inverseJoinColumn: {
-      name: "pk_category",
+      name: "category_id",
       referencedColumnName: "id"
     }
   })
